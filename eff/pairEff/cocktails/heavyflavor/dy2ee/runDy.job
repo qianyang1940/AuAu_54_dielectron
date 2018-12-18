@@ -1,0 +1,57 @@
+Universe     = vanilla
+Notification = never
+Requirements = (CPU_Type != "crs") && (CPU_Experiment == "star")
+Initialdir   = /star/u/syang/run12/uu/minibias/eff/pairEff/cocktails_new/heavyflavor/dy2ee
+GetEnv       = True
++Experiment  = "star"
++Job_Type    = "cas"
+
+
+Executable       = script/runDy_Cen080.sh
+Output           = log/runDy_Cen080.out
+Error            = log/runDy_Cen080.err
+Log              = log/runDy_Cen080.olog
+Queue
+     
+Executable       = script/runDy_Cen010.sh
+Output           = log/runDy_Cen010.out
+Error            = log/runDy_Cen010.err
+Log              = log/runDy_Cen010.olog
+Queue
+     
+Executable       = script/runDy_Cen1040.sh
+Output           = log/runDy_Cen1040.out
+Error            = log/runDy_Cen1040.err
+Log              = log/runDy_Cen1040.olog
+Queue
+     
+Executable       = script/runDy_Cen4080.sh
+Output           = log/runDy_Cen4080.out
+Error            = log/runDy_Cen4080.err
+Log              = log/runDy_Cen4080.olog
+Queue
+     
+Executable       = script/runDy_Cen4060.sh
+Output           = log/runDy_Cen4060.out
+Error            = log/runDy_Cen4060.err
+Log              = log/runDy_Cen4060.olog
+Queue
+     
+Executable       = script/runDy_Cen6080.sh
+Output           = log/runDy_Cen6080.out
+Error            = log/runDy_Cen6080.err
+Log              = log/runDy_Cen6080.olog
+Queue
+     
+Executable       = script/runDy_Cen6070.sh
+Output           = log/runDy_Cen6070.out
+Error            = log/runDy_Cen6070.err
+Log              = log/runDy_Cen6070.olog
+Queue
+     
+Executable       = script/runDy_Cen7080.sh
+Output           = log/runDy_Cen7080.out
+Error            = log/runDy_Cen7080.err
+Log              = log/runDy_Cen7080.olog
+Queue
+     

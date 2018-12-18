@@ -1,0 +1,495 @@
+Universe     = vanilla
+Notification = never
+Requirements = (CPU_Type != "crs") && (CPU_Experiment == "star")
+Initialdir   = /star/u/tc88qy/AuAu/run17/54GeV/EventPlane/shift
+GetEnv       = True
++Experiment  = "star"
++Job_Type    = "cas"
+
+
+Executable       = script_all/all_0.csh
+Output           = log_all/all_0.out
+Error            = log_all/all_0.err
+Log              = log_all/all_0.olog
+Queue
+     
+Executable       = script_all/all_1.csh
+Output           = log_all/all_1.out
+Error            = log_all/all_1.err
+Log              = log_all/all_1.olog
+Queue
+     
+Executable       = script_all/all_2.csh
+Output           = log_all/all_2.out
+Error            = log_all/all_2.err
+Log              = log_all/all_2.olog
+Queue
+     
+Executable       = script_all/all_3.csh
+Output           = log_all/all_3.out
+Error            = log_all/all_3.err
+Log              = log_all/all_3.olog
+Queue
+     
+Executable       = script_all/all_4.csh
+Output           = log_all/all_4.out
+Error            = log_all/all_4.err
+Log              = log_all/all_4.olog
+Queue
+     
+Executable       = script_all/all_5.csh
+Output           = log_all/all_5.out
+Error            = log_all/all_5.err
+Log              = log_all/all_5.olog
+Queue
+     
+Executable       = script_all/all_6.csh
+Output           = log_all/all_6.out
+Error            = log_all/all_6.err
+Log              = log_all/all_6.olog
+Queue
+     
+Executable       = script_all/all_7.csh
+Output           = log_all/all_7.out
+Error            = log_all/all_7.err
+Log              = log_all/all_7.olog
+Queue
+     
+Executable       = script_all/all_8.csh
+Output           = log_all/all_8.out
+Error            = log_all/all_8.err
+Log              = log_all/all_8.olog
+Queue
+     
+Executable       = script_all/all_9.csh
+Output           = log_all/all_9.out
+Error            = log_all/all_9.err
+Log              = log_all/all_9.olog
+Queue
+     
+Executable       = script_all/all_10.csh
+Output           = log_all/all_10.out
+Error            = log_all/all_10.err
+Log              = log_all/all_10.olog
+Queue
+     
+Executable       = script_all/all_11.csh
+Output           = log_all/all_11.out
+Error            = log_all/all_11.err
+Log              = log_all/all_11.olog
+Queue
+     
+Executable       = script_all/all_12.csh
+Output           = log_all/all_12.out
+Error            = log_all/all_12.err
+Log              = log_all/all_12.olog
+Queue
+     
+Executable       = script_all/all_13.csh
+Output           = log_all/all_13.out
+Error            = log_all/all_13.err
+Log              = log_all/all_13.olog
+Queue
+     
+Executable       = script_all/all_14.csh
+Output           = log_all/all_14.out
+Error            = log_all/all_14.err
+Log              = log_all/all_14.olog
+Queue
+     
+Executable       = script_all/all_15.csh
+Output           = log_all/all_15.out
+Error            = log_all/all_15.err
+Log              = log_all/all_15.olog
+Queue
+     
+Executable       = script_all/all_16.csh
+Output           = log_all/all_16.out
+Error            = log_all/all_16.err
+Log              = log_all/all_16.olog
+Queue
+     
+Executable       = script_all/all_17.csh
+Output           = log_all/all_17.out
+Error            = log_all/all_17.err
+Log              = log_all/all_17.olog
+Queue
+     
+Executable       = script_all/all_18.csh
+Output           = log_all/all_18.out
+Error            = log_all/all_18.err
+Log              = log_all/all_18.olog
+Queue
+     
+Executable       = script_all/all_19.csh
+Output           = log_all/all_19.out
+Error            = log_all/all_19.err
+Log              = log_all/all_19.olog
+Queue
+     
+Executable       = script_all/all_20.csh
+Output           = log_all/all_20.out
+Error            = log_all/all_20.err
+Log              = log_all/all_20.olog
+Queue
+     
+Executable       = script_all/all_21.csh
+Output           = log_all/all_21.out
+Error            = log_all/all_21.err
+Log              = log_all/all_21.olog
+Queue
+     
+Executable       = script_all/all_22.csh
+Output           = log_all/all_22.out
+Error            = log_all/all_22.err
+Log              = log_all/all_22.olog
+Queue
+     
+Executable       = script_all/all_23.csh
+Output           = log_all/all_23.out
+Error            = log_all/all_23.err
+Log              = log_all/all_23.olog
+Queue
+     
+Executable       = script_all/all_24.csh
+Output           = log_all/all_24.out
+Error            = log_all/all_24.err
+Log              = log_all/all_24.olog
+Queue
+     
+Executable       = script_all/all_25.csh
+Output           = log_all/all_25.out
+Error            = log_all/all_25.err
+Log              = log_all/all_25.olog
+Queue
+     
+Executable       = script_all/all_26.csh
+Output           = log_all/all_26.out
+Error            = log_all/all_26.err
+Log              = log_all/all_26.olog
+Queue
+     
+Executable       = script_all/all_27.csh
+Output           = log_all/all_27.out
+Error            = log_all/all_27.err
+Log              = log_all/all_27.olog
+Queue
+     
+Executable       = script_all/all_28.csh
+Output           = log_all/all_28.out
+Error            = log_all/all_28.err
+Log              = log_all/all_28.olog
+Queue
+     
+Executable       = script_all/all_29.csh
+Output           = log_all/all_29.out
+Error            = log_all/all_29.err
+Log              = log_all/all_29.olog
+Queue
+     
+Executable       = script_all/all_30.csh
+Output           = log_all/all_30.out
+Error            = log_all/all_30.err
+Log              = log_all/all_30.olog
+Queue
+     
+Executable       = script_all/all_31.csh
+Output           = log_all/all_31.out
+Error            = log_all/all_31.err
+Log              = log_all/all_31.olog
+Queue
+     
+Executable       = script_all/all_32.csh
+Output           = log_all/all_32.out
+Error            = log_all/all_32.err
+Log              = log_all/all_32.olog
+Queue
+     
+Executable       = script_all/all_33.csh
+Output           = log_all/all_33.out
+Error            = log_all/all_33.err
+Log              = log_all/all_33.olog
+Queue
+     
+Executable       = script_all/all_34.csh
+Output           = log_all/all_34.out
+Error            = log_all/all_34.err
+Log              = log_all/all_34.olog
+Queue
+     
+Executable       = script_all/all_35.csh
+Output           = log_all/all_35.out
+Error            = log_all/all_35.err
+Log              = log_all/all_35.olog
+Queue
+     
+Executable       = script_all/all_36.csh
+Output           = log_all/all_36.out
+Error            = log_all/all_36.err
+Log              = log_all/all_36.olog
+Queue
+     
+Executable       = script_all/all_37.csh
+Output           = log_all/all_37.out
+Error            = log_all/all_37.err
+Log              = log_all/all_37.olog
+Queue
+     
+Executable       = script_all/all_38.csh
+Output           = log_all/all_38.out
+Error            = log_all/all_38.err
+Log              = log_all/all_38.olog
+Queue
+     
+Executable       = script_all/all_39.csh
+Output           = log_all/all_39.out
+Error            = log_all/all_39.err
+Log              = log_all/all_39.olog
+Queue
+     
+Executable       = script_all/all_40.csh
+Output           = log_all/all_40.out
+Error            = log_all/all_40.err
+Log              = log_all/all_40.olog
+Queue
+     
+Executable       = script_all/all_41.csh
+Output           = log_all/all_41.out
+Error            = log_all/all_41.err
+Log              = log_all/all_41.olog
+Queue
+     
+Executable       = script_all/all_42.csh
+Output           = log_all/all_42.out
+Error            = log_all/all_42.err
+Log              = log_all/all_42.olog
+Queue
+     
+Executable       = script_all/all_43.csh
+Output           = log_all/all_43.out
+Error            = log_all/all_43.err
+Log              = log_all/all_43.olog
+Queue
+     
+Executable       = script_all/all_44.csh
+Output           = log_all/all_44.out
+Error            = log_all/all_44.err
+Log              = log_all/all_44.olog
+Queue
+     
+Executable       = script_all/all_45.csh
+Output           = log_all/all_45.out
+Error            = log_all/all_45.err
+Log              = log_all/all_45.olog
+Queue
+     
+Executable       = script_all/all_46.csh
+Output           = log_all/all_46.out
+Error            = log_all/all_46.err
+Log              = log_all/all_46.olog
+Queue
+     
+Executable       = script_all/all_47.csh
+Output           = log_all/all_47.out
+Error            = log_all/all_47.err
+Log              = log_all/all_47.olog
+Queue
+     
+Executable       = script_all/all_48.csh
+Output           = log_all/all_48.out
+Error            = log_all/all_48.err
+Log              = log_all/all_48.olog
+Queue
+     
+Executable       = script_all/all_49.csh
+Output           = log_all/all_49.out
+Error            = log_all/all_49.err
+Log              = log_all/all_49.olog
+Queue
+     
+Executable       = script_all/all_50.csh
+Output           = log_all/all_50.out
+Error            = log_all/all_50.err
+Log              = log_all/all_50.olog
+Queue
+     
+Executable       = script_all/all_51.csh
+Output           = log_all/all_51.out
+Error            = log_all/all_51.err
+Log              = log_all/all_51.olog
+Queue
+     
+Executable       = script_all/all_52.csh
+Output           = log_all/all_52.out
+Error            = log_all/all_52.err
+Log              = log_all/all_52.olog
+Queue
+     
+Executable       = script_all/all_53.csh
+Output           = log_all/all_53.out
+Error            = log_all/all_53.err
+Log              = log_all/all_53.olog
+Queue
+     
+Executable       = script_all/all_54.csh
+Output           = log_all/all_54.out
+Error            = log_all/all_54.err
+Log              = log_all/all_54.olog
+Queue
+     
+Executable       = script_all/all_55.csh
+Output           = log_all/all_55.out
+Error            = log_all/all_55.err
+Log              = log_all/all_55.olog
+Queue
+     
+Executable       = script_all/all_56.csh
+Output           = log_all/all_56.out
+Error            = log_all/all_56.err
+Log              = log_all/all_56.olog
+Queue
+     
+Executable       = script_all/all_57.csh
+Output           = log_all/all_57.out
+Error            = log_all/all_57.err
+Log              = log_all/all_57.olog
+Queue
+     
+Executable       = script_all/all_58.csh
+Output           = log_all/all_58.out
+Error            = log_all/all_58.err
+Log              = log_all/all_58.olog
+Queue
+     
+Executable       = script_all/all_59.csh
+Output           = log_all/all_59.out
+Error            = log_all/all_59.err
+Log              = log_all/all_59.olog
+Queue
+     
+Executable       = script_all/all_60.csh
+Output           = log_all/all_60.out
+Error            = log_all/all_60.err
+Log              = log_all/all_60.olog
+Queue
+     
+Executable       = script_all/all_61.csh
+Output           = log_all/all_61.out
+Error            = log_all/all_61.err
+Log              = log_all/all_61.olog
+Queue
+     
+Executable       = script_all/all_62.csh
+Output           = log_all/all_62.out
+Error            = log_all/all_62.err
+Log              = log_all/all_62.olog
+Queue
+     
+Executable       = script_all/all_63.csh
+Output           = log_all/all_63.out
+Error            = log_all/all_63.err
+Log              = log_all/all_63.olog
+Queue
+     
+Executable       = script_all/all_64.csh
+Output           = log_all/all_64.out
+Error            = log_all/all_64.err
+Log              = log_all/all_64.olog
+Queue
+     
+Executable       = script_all/all_65.csh
+Output           = log_all/all_65.out
+Error            = log_all/all_65.err
+Log              = log_all/all_65.olog
+Queue
+     
+Executable       = script_all/all_66.csh
+Output           = log_all/all_66.out
+Error            = log_all/all_66.err
+Log              = log_all/all_66.olog
+Queue
+     
+Executable       = script_all/all_67.csh
+Output           = log_all/all_67.out
+Error            = log_all/all_67.err
+Log              = log_all/all_67.olog
+Queue
+     
+Executable       = script_all/all_68.csh
+Output           = log_all/all_68.out
+Error            = log_all/all_68.err
+Log              = log_all/all_68.olog
+Queue
+     
+Executable       = script_all/all_69.csh
+Output           = log_all/all_69.out
+Error            = log_all/all_69.err
+Log              = log_all/all_69.olog
+Queue
+     
+Executable       = script_all/all_70.csh
+Output           = log_all/all_70.out
+Error            = log_all/all_70.err
+Log              = log_all/all_70.olog
+Queue
+     
+Executable       = script_all/all_71.csh
+Output           = log_all/all_71.out
+Error            = log_all/all_71.err
+Log              = log_all/all_71.olog
+Queue
+     
+Executable       = script_all/all_72.csh
+Output           = log_all/all_72.out
+Error            = log_all/all_72.err
+Log              = log_all/all_72.olog
+Queue
+     
+Executable       = script_all/all_73.csh
+Output           = log_all/all_73.out
+Error            = log_all/all_73.err
+Log              = log_all/all_73.olog
+Queue
+     
+Executable       = script_all/all_74.csh
+Output           = log_all/all_74.out
+Error            = log_all/all_74.err
+Log              = log_all/all_74.olog
+Queue
+     
+Executable       = script_all/all_75.csh
+Output           = log_all/all_75.out
+Error            = log_all/all_75.err
+Log              = log_all/all_75.olog
+Queue
+     
+Executable       = script_all/all_76.csh
+Output           = log_all/all_76.out
+Error            = log_all/all_76.err
+Log              = log_all/all_76.olog
+Queue
+     
+Executable       = script_all/all_77.csh
+Output           = log_all/all_77.out
+Error            = log_all/all_77.err
+Log              = log_all/all_77.olog
+Queue
+     
+Executable       = script_all/all_78.csh
+Output           = log_all/all_78.out
+Error            = log_all/all_78.err
+Log              = log_all/all_78.olog
+Queue
+     
+Executable       = script_all/all_79.csh
+Output           = log_all/all_79.out
+Error            = log_all/all_79.err
+Log              = log_all/all_79.olog
+Queue
+     
+Executable       = script_all/all_80.csh
+Output           = log_all/all_80.out
+Error            = log_all/all_80.err
+Log              = log_all/all_80.olog
+Queue
+     

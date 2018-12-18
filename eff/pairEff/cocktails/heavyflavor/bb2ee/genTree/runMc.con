@@ -1,0 +1,9 @@
+Universe       = vanilla
+Notification   = never
+Requirements   = (CPU_Type != "crs") && (CPU_Experiment == "star")
++Experiment    = "star"
++Job_Type      = "cas"
+GetEnv         = true
+Initialdir     = /star/u/tc88qy/AuAu/run17/54GeV/eff/pairEff/cocktails/heavyflavor/bb2ee/genTree/
+
+

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<job maxFilesPerProcess="54" fileListSyntax="paths">
+
+	<command>
+
+		ln -s /star/u/tc88qy/AuAu/run17/54GeV/picoDst/.sl73_gcc485 ./.sl64_gcc447
+		ln -s /star/u/tc88qy/AuAu/run17/54GeV/picoDst/.sl73_gcc485 ./
+		ln -s /star/u/tc88qy/AuAu/run17/54GeV/picoDst/StRoot ./
+		ln -s /star/u/tc88qy/AuAu/run17/54GeV/picoDst/doEvent.C ./
+
+		starver SL18c
+		root4star -q -b ./doEvent.C\(-1,\"$FILELIST\",\"$SCRATCH/${JOBID}.root\",0\)
+
+	 </command>
+
+	 <stdout URL="file:/star/u/tc88qy/AuAu/run17/54GeV/picoDst/submitjob/submitStdout/$JOBID.out"/>
+		<stderr URL="file:/star/u/tc88qy/AuAu/run17/54GeV/picoDst/submitjob/submitStdout/$JOBID.err"/>
+        <Generator>
+		       <Location>/star/u/tc88qy/AuAu/run17/54GeV/picoDst/submitjob/submitInfo</Location>
+	    </Generator> 
+  	    <input URL="filelist:/star/u/tc88qy/AuAu/run17/54GeV/picoDst/data.list"/> 
+		<output fromScratch="*.root" toURL="file:/star/u/tc88qy/AuAu/run17/54GeV/picoDst/miniTree/rootfiles_PicoDst/"/>
+
+
+
+</job>

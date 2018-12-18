@@ -1,0 +1,9 @@
+Universe     = vanilla
+Notification = never
+Requirements = (CPU_Type != "crs") && (CPU_Experiment == "star")
+Initialdir   = /star/u/tc88qy/AuAu/run17/54GeV/Analysis
+GetEnv       = True
++Experiment  = "star"
++Job_Type    = "cas"
+
+
