@@ -38,6 +38,7 @@
 
 #include "miniDst.h"
 #include "cuts.h"
+#include "RefMfun.h"
 
 using namespace std;
 #endif
@@ -61,8 +62,12 @@ TRandom3 *myRandom;
 
 //variables 
 Int_t dayIndex;
+Int_t runIndex;
 Int_t mCentrality;
 map<Int_t,Int_t> mTotalDayId;
+map<Int_t,Int_t> mTotalRunId;
+map<Int_t,Int_t> mBadRunId_001;
+map<Int_t,Int_t> mBadRunId_021;
 
 Float_t bField;
 Float_t reWeight;
@@ -102,18 +107,27 @@ Float_t parErr[4][4];
 TF1 *phiVcut;
 
 //in Init function
-//TProfile2D *ShiftFactorcos[mArrayLength];
-//TProfile2D *ShiftFactorsin[mArrayLength];
+TProfile2D *ShiftFactorcos[mArrayLength];
+TProfile2D *ShiftFactorsin[mArrayLength];
+TProfile2D *etapluszplusQx;
+TProfile2D *etapluszminusQx;
+TProfile2D *etaminuszplusQx;
+TProfile2D *etaminuszminusQx;
+TProfile2D *etapluszplusQy;
+TProfile2D *etapluszminusQy;
+TProfile2D *etaminuszplusQy;
+TProfile2D *etaminuszminusQy;
 //in passEvent function
 TH1F *hCentrality9;
-TH1F *hCentrality16;
 TH1F *hRefMult;
 TH1F *hVertexZ;
 TH1F *hVzDiff;
 TH1F *hBField;
 //eventPlane
+TH1F *hRawEventPlane;
 TH1F *hNewEventPlane;
 TH1F *hFinalEventPlane;
+TH1F *hReCenterEventPlane;
 TH2F *hInclusiveEPhivsPt;
 TH2F *hExclusiveEPhivsPt;
 TH2F *hnEMinusvsEPlus;
@@ -229,7 +243,29 @@ int main(int argc, char** argv)
 	for(int i=0;i<nEvts;i++){
 
 		if(i%(nEvts/10)==0) cout << "begin " << i << "th entry...." << endl;
-		event->GetEntry(i);
+	event->GetEntry(i);
+    Int_t runId = event->mRunId;
+
+    map<Int_t,Int_t>::iterator iter = mTotalDayId.find((runId/1000)%1000);
+    if(iter != mTotalDayId.end())
+      dayIndex = iter->second;
+    else{
+      dayIndex = -1;
+      cout<<"Can not find the dayId in the mTotalDayId list"<<endl;
+	  continue;
+    }
+    if(dayIndex<0) continue;
+
+    iter = mTotalRunId.find(runId);
+    if(iter != mTotalRunId.end()){
+      runIndex = iter->second;
+    }
+    else{
+      cout<<"runNumber:"<<runId<<endl;
+      cout<<"Can not find the runNumber in the mTotalRunId list"<<endl;
+	  continue;
+      
+    }
 
 		if(i%1000==0){
 			long long tmp = (long long)timer->GetAbsTime();
@@ -237,17 +273,6 @@ int main(int argc, char** argv)
 			myRandom->SetSeed(seed);
 			//cout<<"random number:"<<myRandom->Uniform(-1,1)<<endl;
 		}
-
-		Int_t runId = event->mRunId;
-
-		map<Int_t,Int_t>::iterator iter = mTotalDayId.find((runId/1000)%1000);
-		if(iter != mTotalDayId.end())
-			dayIndex = iter->second;
-		else{
-			dayIndex = -1;
-			cout<<"Can not find the dayId in the mTotalDayId list"<<endl;
-		}
-		if(dayIndex<0) continue;
 
 		if(!passEvent(event)) continue; 
 
@@ -258,15 +283,15 @@ int main(int argc, char** argv)
 		for(int j=0;j<npTrks;j++) passTrack(event,j);
 		hnEMinusvsEPlus->Fill(current_nEPlus,current_nEMinus);
 
-		//Double_t finalEventPlane = reCalEventPlane(event);
-		//if(finalEventPlane<0) continue;
-		//eveBufferPointer = (Int_t)(finalEventPlane/TMath::Pi()*mEveBins);
+		Double_t finalEventPlane = reCalEventPlane(event);
+		if(finalEventPlane<0) continue;
+		eveBufferPointer = (Int_t)(finalEventPlane/TMath::Pi()*mEveBins);
 		////cout<<"eveBufferPointer:"<<eveBufferPointer<<endl;
-		//if(eveBufferPointer<0 || eveBufferPointer>=mEveBins) continue;
+		if(eveBufferPointer<0 || eveBufferPointer>=mEveBins) continue;
 
 		makeRealPairs();
-		//makeMixPairs();
-		//copyCurrentToBuffer();
+		makeMixPairs();
+		copyCurrentToBuffer();
 	}
 
 	writeHistograms(outFile);
@@ -278,6 +303,7 @@ int main(int argc, char** argv)
 //________________________________________________________________
 Bool_t passEvent(miniDst* event)
 {
+	Int_t runId  = event->mRunId;
 	Float_t vx = event->mVertexX;
 	Float_t vy = event->mVertexY;
 	Float_t vz = event->mVertexZ;
@@ -288,48 +314,56 @@ Bool_t passEvent(miniDst* event)
 	Int_t refMult = event->mRefMult;
 	int  nTrigs = event->mNTrigs;
 	bool fireTrigger = kFALSE;
+	bool RefMVzCorFlag = kFALSE;
+	Bool_t is001Trigger = kFALSE;
+	Bool_t is021Trigger = kFALSE;
 	for(int i=0; i< nTrigs; i++){
 		int trigId = event->mTrigId[i];
 		if(trigId == mTrigId[0] || trigId == mTrigId[1] || trigId == mTrigId[2]){
 			fireTrigger = kTRUE;
 		}
+		if(trigId == mTrigId[0])RefMVzCorFlag = kTRUE, is001Trigger = kTRUE;
+		if(trigId == mTrigId[1])is021Trigger = kTRUE;
 	}
 	if(!fireTrigger) return kFALSE;
 	bField = event->mBField;
 	mCentrality = event->mCentrality;
 
-	//reWeight = 1.;
-	reWeight = calReWeight(refMult);
-	//if(refMult<300) cout<<"reWeight: "<<reWeight<<endl;
+	map<Int_t, Int_t>::iterator iter_001 = mBadRunId_001.find(runId);
+	if(iter_001 != mBadRunId_001.end() && is001Trigger){
+		//cout<<"bad run, continue"<<endl;
+		return kFALSE;
+	}
+
+	map<Int_t, Int_t>::iterator iter_021 = mBadRunId_021.find(runId);
+	if(iter_021 != mBadRunId_021.end() && is021Trigger){
+		//cout<<"bad run, continue"<<endl;
+		return kFALSE;
+	}
+
+  //reWeight = 1.;
+  Double_t RefMultCorr = refMult;
+  if(RefMVzCorFlag)RefMultCorr = GetRefMultCorr(refMult, vz);
+  reWeight = GetWeight(RefMultCorr);
+  mCentrality = GetCentrality(RefMultCorr);
+
+  //if(refMult<300) cout<<"reWeight: "<<reWeight<<endl;
 
 	if(TMath::Abs(vx)<1.e-5 && TMath::Abs(vy)<1.e-5 && TMath::Abs(vz)<1.e-5) return kFALSE;
 	if(vr>=mVrCut) return kFALSE;
 	if(TMath::Abs(vz)>=mVzCut) return kFALSE;//vz should also be in the range listed in the parameters file to do the refMult correction
 	if(TMath::Abs(vzDiff)>=mVzDiffCut) return kFALSE;
 
-
-
 	hBField->Fill(bField);
 	hVertexZ->Fill(vz);
 	hVzDiff->Fill(vzDiff);
 
 	hRefMult->Fill(refMult,reWeight);
-	hCentrality16->Fill(mCentrality,reWeight);
 
-	Int_t centrality9 = getCentralityBin9(mCentrality);
+	Int_t centrality9 = mCentrality;
 	hCentrality9->Fill(centrality9,reWeight);
 
-	if(mCenBins==16) cenBufferPointer = mCentrality;
-	else if(mCenBins==9) cenBufferPointer = centrality9;
-	else{
-		cout<<"the # of centrality bins is wrong !"<<endl;
-		return kFALSE;
-	}
-
 	vzBufferPointer = (Int_t)((vz+mVzCut)/(2*mVzCut)*mVzBins);
-	//	cout<<"magBufferPointer:"<<magBufferPointer<<" \tcenBufferPointer:"<<cenBufferPointer<<" \tvzBufferPointer:"<<vzBufferPointer<<" \t";
-
-	if(cenBufferPointer<0 || cenBufferPointer>=mCenBins) return kFALSE;
 	if(vzBufferPointer<0 || vzBufferPointer>=mVzBins) return kFALSE;
 
 	return kTRUE;
@@ -371,20 +405,6 @@ Bool_t passTrack(miniDst* event, Int_t i)
 
 	hInclusiveEPhivsPt->Fill(charge*pt,phi);
 
-	//reject the bad dedx calibration TPC sector
-	//	if(charge*pt>0. && eta>0.
-	//			&& phi<=funPosHi->Eval(charge*pt)
-	//			&& phi>=funPosLow->Eval(charge*pt)
-	//	  ){
-	//		return kFALSE;
-	//	}
-	//	else if(charge*pt<0. && eta>0.
-	//			&& phi<=funNegHi->Eval(charge*pt)
-	//			&& phi>=funNegLow->Eval(charge*pt)
-	//		   ){
-	//		return kFALSE;
-	//	}
-
 	current_EQx[current_nE] = event->mEtaPlusQx;
 	current_EQy[current_nE] = event->mEtaPlusQy;
 	current_nE++;
@@ -402,6 +422,7 @@ Bool_t passTrack(miniDst* event, Int_t i)
 
 	return kTRUE;
 }
+
 void makeRealPairs()
 {
 	//+--------------------------+
@@ -647,8 +668,17 @@ Int_t getCentralityBin9(Int_t cenBin16)
 //_____________________________________________________________________________
 Double_t reCalEventPlane(miniDst* event, Bool_t rejElectron)
 {
+	Float_t vz = event->mVertexZ;
 	Float_t Qx = event->mEtaPlusQx;
 	Float_t Qy = event->mEtaPlusQy;
+	Int_t mEtaPlusNTrks = event->mEtaPlusNTrks;
+	Int_t mEtaMinusNTrks = event->mEtaMinusNTrks;
+
+	TVector2 mRawQ(Qx,Qy);
+	Double_t rawEP = 0.5*mRawQ.Phi();
+	if(rawEP<0.) rawEP += TMath::Pi();
+	hRawEventPlane->Fill(rawEP);
+
 	if(rejElectron){ //reject the contribution of electron
 		for(Int_t i=0;i<current_nE;i++){
 			Qx -= current_EQx[i];
@@ -664,25 +694,43 @@ Double_t reCalEventPlane(miniDst* event, Bool_t rejElectron)
 	hNewEventPlane->Fill(eventPlane);
 	if(eventPlane<0.) return eventPlane;
 
-	//*********  get shift factor and add shift deltaPhi *********
-	//	Float_t shiftCorrcos[mArrayLength];
-	//	Float_t shiftCorrsin[mArrayLength];
-	//	for(Int_t i=0;i<mArrayLength;i++){
-	//		shiftCorrcos[i] = ShiftFactorcos[i]->GetBinContent(dayIndex+1,mCentrality+1);
-	//		shiftCorrsin[i] = ShiftFactorsin[i]->GetBinContent(dayIndex+1,mCentrality+1);
-	//	}
-	//	Double_t deltaPhi=0;
-	//	for(Int_t i=0;i<mArrayLength;i++){
-	//		deltaPhi += 1./(i+1)*(-1.*shiftCorrsin[i]*cos(2.*(i+1)*eventPlane) + shiftCorrcos[i]*sin(2.*(i+1)*eventPlane));
-	//	}
-	//	if(deltaPhi<0.) deltaPhi += TMath::Pi();
-	//	if(deltaPhi>=TMath::Pi()) deltaPhi -= TMath::Pi();
-	//	eventPlane += deltaPhi;
-	//	if(eventPlane<0.) eventPlane += TMath::Pi();
-	//	if(eventPlane>=TMath::Pi()) eventPlane -= TMath::Pi();
-	hFinalEventPlane->Fill(eventPlane);
+	//********* get recenter number and recenter *********
+	Double_t mReCenterQx, mReCenterQy;
+	if(vz>0){
+		mReCenterQx = Qx - mEtaPlusNTrks*etapluszplusQx->GetBinContent(runIndex+1, mCentrality+1) - mEtaMinusNTrks*etaminuszplusQx->GetBinContent(runIndex+1, mCentrality+1);
+		mReCenterQy = Qy - mEtaPlusNTrks*etapluszplusQy->GetBinContent(runIndex+1, mCentrality+1) - mEtaMinusNTrks*etaminuszplusQy->GetBinContent(runIndex+1, mCentrality+1);
+	}
+	else{
+		mReCenterQx = Qx - mEtaPlusNTrks*etapluszminusQx->GetBinContent(runIndex+1, mCentrality+1) - mEtaMinusNTrks*etaminuszminusQx->GetBinContent(runIndex+1, mCentrality+1);
+		mReCenterQy = Qy - mEtaPlusNTrks*etapluszminusQy->GetBinContent(runIndex+1, mCentrality+1) - mEtaMinusNTrks*etaminuszminusQy->GetBinContent(runIndex+1, mCentrality+1);
+	}
+	Double_t recenterEP;
+	TVector2 *mReCenterQ = new TVector2(mReCenterQx, mReCenterQy);
+	if(mReCenterQ->Mod() > 0){
+		recenterEP = 0.5*mReCenterQ->Phi();
+		if(recenterEP<0.) recenterEP += TMath::Pi();
+		hReCenterEventPlane->Fill(recenterEP);
+	}
 
-	return eventPlane;
+	//*********  get shift factor and add shift deltaPhi *********
+	Float_t shiftCorrcos[mArrayLength];
+	Float_t shiftCorrsin[mArrayLength];
+	for(Int_t i=0;i<mArrayLength;i++){
+		shiftCorrcos[i] = ShiftFactorcos[i]->GetBinContent(dayIndex+1,mCentrality+1);
+		shiftCorrsin[i] = ShiftFactorsin[i]->GetBinContent(dayIndex+1,mCentrality+1);
+	}
+	Double_t deltaPhi=0;
+	for(Int_t i=0;i<mArrayLength;i++){
+		deltaPhi += 1./(i+1)*(-1.*shiftCorrsin[i]*cos(2.*(i+1)*recenterEP) + shiftCorrcos[i]*sin(2.*(i+1)*recenterEP));
+	}
+	if(deltaPhi<0.) deltaPhi += TMath::Pi();
+	if(deltaPhi>=TMath::Pi()) deltaPhi -= TMath::Pi();
+	recenterEP += deltaPhi;
+	if(recenterEP<0.) recenterEP += TMath::Pi();
+	if(recenterEP>=TMath::Pi()) recenterEP -= TMath::Pi();
+	hFinalEventPlane->Fill(recenterEP);
+
+	return recenterEP;
 }
 //____________________________________________________________
 Double_t phiVAngle(TLorentzVector e1, TLorentzVector e2, Int_t q1, Int_t q2)
@@ -728,37 +776,6 @@ Double_t phiVAngle(TLorentzVector e1, TLorentzVector e2, Int_t q1, Int_t q2)
 	return angleV;
 }
 //____________________________________________________________
-Double_t calReWeight(Double_t refMultCorr)
-{
-	Double_t Weight = 1.0;
-
-	Double_t par0 = 0.999399;
-	Double_t par1 = 2.38921;
-	Double_t par2 = 2.58815;
-	Double_t par3 = 8.74494;
-	Double_t par4 = 4.44044e-05;
-	Double_t A    = 0;
-	Double_t par6 = 1161.36;
-	Double_t par7 = -4.72874e-08;
-
-	// Additional z-vertex dependent correction
-	//const Double_t A = ((1.27/1.21))/(30.0*30.0); // Don't ask...
-	//const Double_t A = (0.05/0.21)/(30.0*30.0); // Don't ask...
-	Double_t mVz = 60.0; // this has to be modified...
-
-	if(
-			refMultCorr != -(par3/par2) // avoid denominator = 0
-			&& refMultCorr<=300         // normalization stop at refMultCorr=300
-	  )
-	{
-		Weight = par0 + par1/(par2*refMultCorr + par3) + par4*(par2*refMultCorr + par3) + par6/pow(par2*refMultCorr+par3 ,2) + par7*pow(par2*refMultCorr+par3 ,2); // Parametrization of MC/data RefMult ratio
-		//Weight = par0 + par1/(par2*refMultCorr + par3) + par4*(par2*refMultCorr + par3) ; // Parametrization of MC/data RefMult ratio
-		Weight = Weight + (Weight-1.0)*(A*mVz*mVz); // z-dependent weight correction
-	}
-
-	return Weight;
-}
-//____________________________________________________________
 Double_t calCosTheta(TLorentzVector eVec,TLorentzVector eeVec)
 {
 	//eVec: positron TLorentzVector  eeVec: ee pair LorentzVector
@@ -777,15 +794,14 @@ Double_t calCosTheta(TLorentzVector eVec,TLorentzVector eeVec)
 void bookHistograms()
 {
 	char buf[500];
-	//	for(int i=0;i<mArrayLength;i++){
-	//		sprintf(buf,"ShiftFactorcos_%d",i);
-	//		ShiftFactorcos[i] = new TProfile2D(buf,buf,mTotalDay,0,mTotalDay,mTotalCentrality,0,mTotalCentrality);
-	//		sprintf(buf,"ShiftFactorsin_%d",i);
-	//		ShiftFactorsin[i] = new TProfile2D(buf,buf,mTotalDay,0,mTotalDay,mTotalCentrality,0,mTotalCentrality);
-	//	}
+	for(int i=0;i<mArrayLength;i++){
+		sprintf(buf,"ShiftFactorcos_%d",i);
+		ShiftFactorcos[i] = new TProfile2D(buf,buf,mTotalDay,0,mTotalDay,mTotalCentrality,0,mTotalCentrality);
+		sprintf(buf,"ShiftFactorsin_%d",i);
+		ShiftFactorsin[i] = new TProfile2D(buf,buf,mTotalDay,0,mTotalDay,mTotalCentrality,0,mTotalCentrality);
+	}
 
 	hCentrality9 = new TH1F("hCentrality9","hCentrality9;Centrality;Counts",16,0,16);
-	hCentrality16 = new TH1F("hCentrality16","hCentrality16;Centrality;Counts",16,0,16);
 	hRefMult = new TH1F("hRefMult","hRefMult;dN_{ch}/d#eta;Counts",1000,0,1000);
 	hVertexZ = new TH1F("hVertexZ","hVertexZ;TPC VertexZ (cm);Counts",2000,-100,100);
 	hVzDiff = new TH1F("hVzDiff","hVzDiff;Vz_{TPC} - Vz_{VPD} (cm);Counts",200,-10,10);
@@ -799,7 +815,9 @@ void bookHistograms()
 	const Double_t massHi    = 4;
 
 	//eventPlane
+	hRawEventPlane = new TH1F("hRawEventPlane","hRawEventPlane;Reaction Plane (rad); Counts",300,0,TMath::Pi());
 	hNewEventPlane = new TH1F("hNewEventPlane","hNewEventPlane;Reaction Plane (rad); Counts",300,0,TMath::Pi());
+	hReCenterEventPlane = new TH1F("hReCenterEventPlane","hReCenterEventPlane;Reaction Plane (rad); Counts",300,0,TMath::Pi());
 	hFinalEventPlane = new TH1F("hFinalEventPlane","hFinalEventPlane;Reaction Plane (rad); Counts",300,0,TMath::Pi());
 
 	hInclusiveEPhivsPt = new TH2F("hInclusiveEPhivsPt","hInclusiveEPhivsPt;q*p_{T} (GeV/c); #phi",200,-10,10,600,-TMath::Pi(),TMath::Pi());
@@ -870,15 +888,16 @@ void writeHistograms(char* outFile)
 
 	//in passEvent function
 	hCentrality9->Write();
-	hCentrality16->Write();
 	hRefMult->Write();
 	hVertexZ->Write();
 	hVzDiff->Write();
 	hBField->Write();
 
 	//eventPlane
+	hRawEventPlane->Write();
 	hNewEventPlane->Write();
 	hFinalEventPlane->Write();
+	hReCenterEventPlane->Write();
 	hInclusiveEPhivsPt->Write();
 	hExclusiveEPhivsPt->Write();
 
@@ -935,8 +954,7 @@ Bool_t Init()
 
 	ifstream indata;
 
-	//indata.open("../../produceRunList/runList/mTotalDayList.dat");
-	indata.open("/star/u/tc88qy/AuAu/run17/54GeV/fromShuai/QA/runList/output_all/GetRun/runList/mTotalDayList.dat");
+	indata.open("/star/u/tc88qy/AuAu/run17/54GeV/QA/runList/output_all/GetRun/runList/mTotalDayList.dat");
 	mTotalDayId.clear();
 	if(indata.is_open()){
 		cout<<"read in day number list and recode day number ...";
@@ -952,77 +970,96 @@ Bool_t Init()
 		return kFALSE;
 	}
 	indata.close();
-	for(map<Int_t,Int_t>::iterator iter=mTotalDayId.begin();iter!=mTotalDayId.end();iter++)
-		cout<<iter->second<<" \t"<<iter->first<<endl;
-	cout<<endl;
 
-	//	TProfile2D *factorcos[mArrayLength];
-	//	TProfile2D *factorsin[mArrayLength];
-	//	TFile fin("../produceShiftFactor/output_all/minibias_shiftfactor.root");
-	//	if(fin.IsOpen()){
-	//		cout<<"read in shiftfactor root file ...";
-	//		for(int i=0;i<mArrayLength;i++){
-	//			factorcos[i] = (TProfile2D*)fin.Get(Form("shiftfactorcos_%d",i));
-	//			factorsin[i] = (TProfile2D*)fin.Get(Form("shiftfactorsin_%d",i));
-	//
-	//			ShiftFactorcos[i]->Add(factorcos[i]);
-	//			ShiftFactorsin[i]->Add(factorsin[i]);
-	//			delete factorsin[i];
-	//			delete factorcos[i];
-	//		}
-	//		cout<<" [OK]"<<endl;
-	//	}
-	//	else{
-	//		for(int i=0;i<mArrayLength;i++){
-	//			for(int j=0;j<mTotalDay;j++){//daynumber
-	//				for(int k=0;k<mTotalCentrality;k++){//cennumber
-	//					ShiftFactorcos[i]->SetBinContent(j+1,k+1,0.);
-	//					ShiftFactorsin[i]->SetBinContent(j+1,k+1,0.);
-	//				}
-	//			}
-	//		}
-	//		cout<<"Failed to load the shiftfactor root fail !!!"<<endl;
-	//		return kFALSE;
-	//	}
-	//	fin.Close();
-	//	cout<<endl;
+	indata.open("/star/u/tc88qy/AuAu/run17/54GeV/QA/runList/output_all/GetRun/runList/mTotalRunList.dat");
+	mTotalRunId.clear();
+	if(indata.is_open()){
+		cout<<"read in total run number list and recode run number ...";
+		Int_t oldId;
+		Int_t newId=0;
+		while(indata>>oldId){
+			mTotalRunId[oldId] = newId;
+			newId++;
+		}
+		cout<<" [OK]"<<endl;
+	}else{
+		cout<<"Failed to load the total run number list !!!"<<endl;
+		return kFALSE;
+	}
+	indata.close();
+
+	//read in bad run for 580001 and 580021
+	ifstream indata_001;
+	indata_001.open("/star/u/tc88qy/AuAu/run17/54GeV/EventPlane/reCenter/Badrun/mBadRunList_001.dat");
+	mBadRunId_001.clear();
+	if(indata_001.is_open()){
+		cout<<"read in bad run list for trigger 580001 ...";
+		Int_t oldId;
+		Int_t newId=0;
+		while(indata_001>>oldId){
+			mBadRunId_001[oldId] = newId;
+			newId++;
+		}
+		cout<<" [OK]"<<endl;
+	}else{
+		cout<<"Failed to load the total run number list !!!"<<endl;
+		return kFALSE;
+	}
+	indata_001.close();
+
+	//read in bad run for 580001 and 580021
+	ifstream indata_021;
+	indata_021.open("/star/u/tc88qy/AuAu/run17/54GeV/EventPlane/reCenter/Badrun/mBadRunList_021.dat");
+	mBadRunId_021.clear();
+	if(indata_021.is_open()){
+		cout<<"read in bad run list for trigger 580021 ...";
+		Int_t oldId;
+		Int_t newId=0;
+		while(indata_021>>oldId){
+			mBadRunId_021[oldId] = newId;
+			newId++;
+		}
+		cout<<" [OK]"<<endl;
+	}else{
+		cout<<"Failed to load the total run number list !!!"<<endl;
+		return kFALSE;
+	}
+	indata_021.close();
+	
+	cout<<"bad run for trigger 580001"<<endl;
+	for(map<Int_t,Int_t>::iterator iter=mBadRunId_001.begin();iter!=mBadRunId_001.end();iter++)
+		cout<<iter->second<<" \t"<<iter->first<<endl;
+
+	cout<<"bad run for trigger 580021"<<endl;
+	for(map<Int_t,Int_t>::iterator iter=mBadRunId_021.begin();iter!=mBadRunId_021.end();iter++)
+		cout<<iter->second<<" \t"<<iter->first<<endl;
+
+	TFile *fReCenter = TFile::Open("/star/u/tc88qy/AuAu/run17/54GeV/EventPlane/reCenter/output_all/reCenter.root");
+	if(fReCenter->IsOpen()){
+		cout<<"read in re-center root file ...";
+		etapluszplusQx   = (TProfile2D *)fReCenter->Get("etapluszplusQx");
+		etapluszminusQx  = (TProfile2D *)fReCenter->Get("etapluszminusQx");
+		etaminuszplusQx  = (TProfile2D *)fReCenter->Get("etaminuszplusQx");
+		etaminuszminusQx = (TProfile2D *)fReCenter->Get("etaminuszminusQx");
+		etapluszplusQy   = (TProfile2D *)fReCenter->Get("etapluszplusQy");
+		etapluszminusQy  = (TProfile2D *)fReCenter->Get("etapluszminusQy");
+		etaminuszplusQy  = (TProfile2D *)fReCenter->Get("etaminuszplusQy");
+		etaminuszminusQy = (TProfile2D *)fReCenter->Get("etaminuszminusQy");
+	}
+
+	TFile *fShift = TFile::Open("/star/u/tc88qy/AuAu/run17/54GeV/EventPlane/shift/output_all/shift.histo.root");
+	if(fShift->IsOpen()){
+		cout<<"read in shiftfactor root file ...";
+		for(int i=0;i<mArrayLength;i++){
+			ShiftFactorcos[i] = (TProfile2D*)fShift->Get(Form("shiftfactorcos_%d",i));
+			ShiftFactorsin[i] = (TProfile2D*)fShift->Get(Form("shiftfactorsin_%d",i));
+		}
+		cout<<" [OK]"<<endl;
+	}
+
 
 	phiVcut=new TF1("phiVcut","0.84326*exp((-49.4819)*x)+(-0.996609)*x+(0.19801)",0.,1.0); //jie's cut
 
-	//phiVcut = new TF1("phiVcut","[0]/(exp(-[1]/x)+[2])+0.2",0.,0.2); //update Jan 2, 2013
-	//phiVcut->SetParameters(0.07215,0.08769,0.1558);
-
-	//	indata.open("/star/u/syang/run12/uu/minibias/badTPCSectorGeo/fitPars.dat");
-	//	if(!indata.is_open()){                                                      
-	//		cout<<"Failed to load the bad TPC sector geometry parameters !!!"<<endl;
-	//		return kFALSE;
-	//	}else{
-	//		cout<<"Load bad TPC sector geometry parameters ...";
-	//		Int_t idx = 0;
-	//		Double_t tmp0,tmp1;
-	//		while(indata>>tmp0>>tmp1){
-	//			par[idx/4][idx%4] = tmp0;
-	//			parErr[idx/4][idx%4] = tmp1;
-	//			idx++;
-	//		}
-	//		cout<<" [OK]"<<endl;
-	//	}
-	//	indata.close();
-	//	for(Int_t i=0;i<4;i++){
-	//		for(Int_t j=0;j<4;j++){
-	//			cout<<par[i][j]<<" ";
-	//		}
-	//		cout<<endl;
-	//	}
-	//	cout<<endl;
-	//	funPosHi = new TF1("funPosHi","[0]*exp(-([1]/x)**[2])+[3]",0.1,60);
-	//	funPosHi->SetParameters(par[0][0],par[0][1],par[0][2],par[0][3]);
-	//	funPosLow = new TF1("funPosLow","[0]*exp(-([1]/x)**[2])+[3]",0.1,60);
-	//	funPosLow->SetParameters(par[1][0],par[1][1],par[1][2],par[1][3]);
-	//	funNegHi = new TF1("funNegHi","[0]*exp(-([1]/x)**[2])+[3]",-60,-0.1);
-	//	funNegHi->SetParameters(par[2][0],par[2][1],par[2][2],par[2][3]);
-	//	funNegLow = new TF1("funNegLow","[0]*exp(-([1]/x)**[2])+[3]",-60,-0.1);
-	//	funNegLow->SetParameters(par[3][0],par[3][1],par[3][2],par[3][3]);
 
 	cout<<"Initialization DONE !!!"<<endl;
 	cout<<endl;
