@@ -54,7 +54,7 @@ Bool_t passTrack(miniDst* event, Int_t i);
 Int_t  getCentralityBin9(Int_t cenBin16);
 Double_t calReWeight(Double_t refMultCorr);
 Double_t calCosTheta(TLorentzVector eVec,TLorentzVector eeVec);
-Double_t reCalEventPlane(miniDst* event, Bool_t rejElectron = kTRUE);
+Double_t reCalEventPlane(miniDst* event, Bool_t rejElectron = kFALSE);
 Double_t phiVAngle(TLorentzVector e1, TLorentzVector e2, Int_t q1, Int_t q2);
 
 TTimer   *timer;
@@ -243,29 +243,29 @@ int main(int argc, char** argv)
 	for(int i=0;i<nEvts;i++){
 
 		if(i%(nEvts/10)==0) cout << "begin " << i << "th entry...." << endl;
-	event->GetEntry(i);
-    Int_t runId = event->mRunId;
+		event->GetEntry(i);
+		Int_t runId = event->mRunId;
 
-    map<Int_t,Int_t>::iterator iter = mTotalDayId.find((runId/1000)%1000);
-    if(iter != mTotalDayId.end())
-      dayIndex = iter->second;
-    else{
-      dayIndex = -1;
-      cout<<"Can not find the dayId in the mTotalDayId list"<<endl;
-	  continue;
-    }
-    if(dayIndex<0) continue;
+		map<Int_t,Int_t>::iterator iter = mTotalDayId.find((runId/1000)%1000);
+		if(iter != mTotalDayId.end())
+			dayIndex = iter->second;
+		else{
+			dayIndex = -1;
+			cout<<"Can not find the dayId in the mTotalDayId list"<<endl;
+			continue;
+		}
+		if(dayIndex<0) continue;
 
-    iter = mTotalRunId.find(runId);
-    if(iter != mTotalRunId.end()){
-      runIndex = iter->second;
-    }
-    else{
-      cout<<"runNumber:"<<runId<<endl;
-      cout<<"Can not find the runNumber in the mTotalRunId list"<<endl;
-	  continue;
-      
-    }
+		iter = mTotalRunId.find(runId);
+		if(iter != mTotalRunId.end()){
+			runIndex = iter->second;
+		}
+		else{
+			cout<<"runNumber:"<<runId<<endl;
+			cout<<"Can not find the runNumber in the mTotalRunId list"<<endl;
+			continue;
+
+		}
 
 		if(i%1000==0){
 			long long tmp = (long long)timer->GetAbsTime();
@@ -319,11 +319,11 @@ Bool_t passEvent(miniDst* event)
 	Bool_t is021Trigger = kFALSE;
 	for(int i=0; i< nTrigs; i++){
 		int trigId = event->mTrigId[i];
-		if(trigId == mTrigId[0] || trigId == mTrigId[1] || trigId == mTrigId[2]){
+		if(trigId == mTrigId[0] || trigId == mTrigId[2]){
 			fireTrigger = kTRUE;
 		}
 		if(trigId == mTrigId[0])RefMVzCorFlag = kTRUE, is001Trigger = kTRUE;
-		if(trigId == mTrigId[1])is021Trigger = kTRUE;
+		if(trigId == mTrigId[2])is021Trigger = kTRUE;
 	}
 	if(!fireTrigger) return kFALSE;
 	bField = event->mBField;
@@ -341,13 +341,13 @@ Bool_t passEvent(miniDst* event)
 		return kFALSE;
 	}
 
-  //reWeight = 1.;
-  Double_t RefMultCorr = refMult;
-  if(RefMVzCorFlag)RefMultCorr = GetRefMultCorr(refMult, vz);
-  reWeight = GetWeight(RefMultCorr);
-  mCentrality = GetCentrality(RefMultCorr);
+	//reWeight = 1.;
+	Double_t RefMultCorr = refMult;
+	if(RefMVzCorFlag)RefMultCorr = GetRefMultCorr(refMult, vz);
+	reWeight = GetWeight(RefMultCorr);
+	mCentrality = GetCentrality(RefMultCorr);
 
-  //if(refMult<300) cout<<"reWeight: "<<reWeight<<endl;
+	//if(refMult<300) cout<<"reWeight: "<<reWeight<<endl;
 
 	if(TMath::Abs(vx)<1.e-5 && TMath::Abs(vy)<1.e-5 && TMath::Abs(vz)<1.e-5) return kFALSE;
 	if(vr>=mVrCut) return kFALSE;
@@ -669,10 +669,14 @@ Int_t getCentralityBin9(Int_t cenBin16)
 Double_t reCalEventPlane(miniDst* event, Bool_t rejElectron)
 {
 	Float_t vz = event->mVertexZ;
-	Float_t Qx = event->mEtaPlusQx;
-	Float_t Qy = event->mEtaPlusQy;
+	Float_t mPlusQx = event->mEtaPlusQx;
+	Float_t mPlusQy = event->mEtaPlusQy;
+	Float_t mMinusQx = event->mEtaMinusQx;
+	Float_t mMinusQy = event->mEtaMinusQy;
 	Int_t mEtaPlusNTrks = event->mEtaPlusNTrks;
 	Int_t mEtaMinusNTrks = event->mEtaMinusNTrks;
+	Float_t Qx = mPlusQx + mMinusQx; 
+	Float_t Qy = mMinusQy + mPlusQy;
 
 	TVector2 mRawQ(Qx,Qy);
 	Double_t rawEP = 0.5*mRawQ.Phi();
@@ -1025,7 +1029,7 @@ Bool_t Init()
 		return kFALSE;
 	}
 	indata_021.close();
-	
+
 	cout<<"bad run for trigger 580001"<<endl;
 	for(map<Int_t,Int_t>::iterator iter=mBadRunId_001.begin();iter!=mBadRunId_001.end();iter++)
 		cout<<iter->second<<" \t"<<iter->first<<endl;

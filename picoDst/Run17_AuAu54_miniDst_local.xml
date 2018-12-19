@@ -18,7 +18,7 @@
         <Generator>
 		       <Location>/star/u/tc88qy/AuAu/run17/54GeV/picoDst/submitjob/submitInfo</Location>
 	    </Generator> 
-  	    <input URL="filelist:/star/u/tc88qy/AuAu/run17/54GeV/picoDst/localdata.list"/> 
+  	    <input URL="filelist:/star/u/tc88qy/AuAu/run17/54GeV/picoDst/Virtual_photon_ana.list"/> 
 		<output fromScratch="*.root" toURL="file:/star/u/tc88qy/AuAu/run17/54GeV/picoDst/miniTree/rootfiles_PicoDst/"/>
 
 
