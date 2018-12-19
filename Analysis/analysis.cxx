@@ -784,7 +784,7 @@ Double_t calCosTheta(TLorentzVector eVec,TLorentzVector eeVec)
 {
 	//eVec: positron TLorentzVector  eeVec: ee pair LorentzVector
 	TLorentzVector positron(eVec); //positron
-	TLorentzVector beam(0., 0., sqrt(pow(96.5,2)-pow(Mproton,2)), 96.5); // UU@193 GeV
+	TLorentzVector beam(0., 0., sqrt(pow(27.2,2)-pow(Mproton,2)), 27.2); // UU@193 GeV
 
 	TVector3 dir = eeVec.BoostVector();
 
