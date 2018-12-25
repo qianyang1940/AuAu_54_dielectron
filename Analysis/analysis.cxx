@@ -363,7 +363,10 @@ Bool_t passEvent(miniDst* event)
 	hRawRefMult->Fill(refMult);
 
 	hCentrality9->Fill(mCentrality,reWeight);
+	if(mCentrality < 1)return kFALSE;
 
+	cenBufferPointer = mCentrality - 1;
+	if(mCentrality > 9)cenBufferPointer = 8; 
 	vzBufferPointer = (Int_t)((vz+mVzCut)/(2*mVzCut)*mVzBins);
 	if(vzBufferPointer<0 || vzBufferPointer>=mVzBins) return kFALSE;
 
