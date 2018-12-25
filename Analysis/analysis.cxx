@@ -120,6 +120,7 @@ TProfile2D *etaminuszminusQy;
 //in passEvent function
 TH1F *hCentrality9;
 TH1F *hRefMult;
+TH1F *hRawRefMult;
 TH1F *hVertexZ;
 TH1F *hVzDiff;
 TH1F *hBField;
@@ -359,9 +360,9 @@ Bool_t passEvent(miniDst* event)
 	hVzDiff->Fill(vzDiff);
 
 	hRefMult->Fill(refMult,reWeight);
+	hRawRefMult->Fill(refMult);
 
-	Int_t centrality9 = mCentrality;
-	hCentrality9->Fill(centrality9,reWeight);
+	hCentrality9->Fill(mCentrality,reWeight);
 
 	vzBufferPointer = (Int_t)((vz+mVzCut)/(2*mVzCut)*mVzBins);
 	if(vzBufferPointer<0 || vzBufferPointer>=mVzBins) return kFALSE;
@@ -433,15 +434,13 @@ void makeRealPairs()
 		for(Int_t j=0;j<current_nEMinus;j++){
 			pair = current_ePlus[i]+current_eMinus[j];
 			if(TMath::Abs(pair.Rapidity())<=mPairYCut){
-				//hULMvsPtwophiV->Fill(pair.Pt(),pair.M(),reWeight);
-				hULMvsPtwophiV->Fill(pair.Pt(),pair.M());
+				hULMvsPtwophiV->Fill(pair.Pt(),pair.M(),reWeight);
 
 				Double_t angleVcut = phiVcut->Eval(pair.M());
 				Double_t angleV = phiVAngle(current_ePlus[i],current_eMinus[j],1,-1);
 				hULAngleVvsM->Fill(pair.M(),angleV,reWeight);
 				if( (angleV>angleVcut && pair.M()<mPhiVCutMRange) || pair.M()>=mPhiVCutMRange ){
-					//hULMvsPt->Fill(pair.Pt(),pair.M(),reWeight);
-					hULMvsPt->Fill(pair.Pt(),pair.M());
+					hULMvsPt->Fill(pair.Pt(),pair.M(),reWeight);
 					hULMvsPtCen->Fill(pair.Pt(),cenBufferPointer,pair.M(),reWeight);
 
 					if(pair.Pt()<pairPtCut){
@@ -463,15 +462,13 @@ void makeRealPairs()
 		for(Int_t j=i+1;j<current_nEPlus;j++){
 			pair = current_ePlus[i]+current_ePlus[j];
 			if(TMath::Abs(pair.Rapidity())<=mPairYCut){
-				//hLPosMvsPtwophiV->Fill(pair.Pt(),pair.M(),reWeight);
-				hLPosMvsPtwophiV->Fill(pair.Pt(),pair.M());
+				hLPosMvsPtwophiV->Fill(pair.Pt(),pair.M(),reWeight);
 
 				Double_t angleVcut = phiVcut->Eval(pair.M());
 				Double_t angleV = phiVAngle(current_ePlus[i],current_ePlus[j],1,1);
 				hLPosAngleVvsM->Fill(pair.M(),angleV,reWeight);
 				if( (angleV>angleVcut && pair.M()<mPhiVCutMRange) || pair.M()>=mPhiVCutMRange ){
-					//hLPosMvsPt->Fill(pair.Pt(),pair.M(),reWeight);
-					hLPosMvsPt->Fill(pair.Pt(),pair.M());
+					hLPosMvsPt->Fill(pair.Pt(),pair.M(),reWeight);
 					hLPosMvsPtCen->Fill(pair.Pt(),cenBufferPointer,pair.M(),reWeight);
 
 					if(pair.Pt()<pairPtCut){
@@ -493,15 +490,13 @@ void makeRealPairs()
 		for(Int_t j=i+1;j<current_nEMinus;j++){
 			pair = current_eMinus[i]+current_eMinus[j];
 			if(TMath::Abs(pair.Rapidity())<=mPairYCut){
-				//hLNegMvsPtwophiV->Fill(pair.Pt(),pair.M(),reWeight);
-				hLNegMvsPtwophiV->Fill(pair.Pt(),pair.M());
+				hLNegMvsPtwophiV->Fill(pair.Pt(),pair.M(),reWeight);
 
 				Double_t angleVcut = phiVcut->Eval(pair.M());
 				Double_t angleV = phiVAngle(current_eMinus[i],current_eMinus[j],-1,-1);
 				hLNegAngleVvsM->Fill(pair.M(),angleV,reWeight);
 				if( (angleV>angleVcut && pair.M()<mPhiVCutMRange) || pair.M()>=mPhiVCutMRange ){
-					//hLNegMvsPt->Fill(pair.Pt(),pair.M(),reWeight);
-					hLNegMvsPt->Fill(pair.Pt(),pair.M());
+					hLNegMvsPt->Fill(pair.Pt(),pair.M(),reWeight);
 					hLNegMvsPtCen->Fill(pair.Pt(),cenBufferPointer,pair.M(),reWeight);
 
 					if(pair.Pt()<pairPtCut){
@@ -807,16 +802,17 @@ void bookHistograms()
 
 	hCentrality9 = new TH1F("hCentrality9","hCentrality9;Centrality;Counts",16,0,16);
 	hRefMult = new TH1F("hRefMult","hRefMult;dN_{ch}/d#eta;Counts",1000,0,1000);
+	hRawRefMult = new TH1F("hRawRefMult","hRawRefMult;dN_{ch}/d#eta;Counts",1000,0,1000);
 	hVertexZ = new TH1F("hVertexZ","hVertexZ;TPC VertexZ (cm);Counts",2000,-100,100);
 	hVzDiff = new TH1F("hVzDiff","hVzDiff;Vz_{TPC} - Vz_{VPD} (cm);Counts",200,-10,10);
 	hBField = new TH1F("hBField","hBField;Magnetic Filed (KiloGauss);Counts",400,-10,10);
 
-	const Int_t    nPtBins   = 500;
+	const Int_t    nPtBins   = 60;
 	const Double_t ptLow     = 0;
-	const Double_t ptHi      = 5;
-	const Int_t    nMassBins = 800;
+	const Double_t ptHi      = 15;
+	const Int_t    nMassBins = 1200;
 	const Double_t massLow   = 0;
-	const Double_t massHi    = 4;
+	const Double_t massHi    = 6;
 
 	//eventPlane
 	hRawEventPlane = new TH1F("hRawEventPlane","hRawEventPlane;Reaction Plane (rad); Counts",300,0,TMath::Pi());
@@ -893,6 +889,7 @@ void writeHistograms(char* outFile)
 	//in passEvent function
 	hCentrality9->Write();
 	hRefMult->Write();
+	hRawRefMult->Write();
 	hVertexZ->Write();
 	hVzDiff->Write();
 	hBField->Write();
