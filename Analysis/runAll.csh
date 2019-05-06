@@ -38,6 +38,7 @@ cp run.con runAll_$1.job
 ifile=0
 for FILE in `cat datalist_$1`
 do
+	 cp run.con runAll_$1.job
      echo $FILE
      cp ./run.csh script_$1/$1_$ifile.csh
  
@@ -50,6 +51,6 @@ do
      echo  "Queue" >>runAll_$1.job
      echo  "     " >>runAll_$1.job
       
+	 condor_submit runAll_$1.job
      let "ifile+=1";
 done
-condor_submit runAll_$1.job

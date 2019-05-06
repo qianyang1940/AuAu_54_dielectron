@@ -15,7 +15,7 @@ const Int_t    mMinRunId = 18153052;
 
 //event cuts
 const Float_t mVrCut = 2.;
-const Float_t mVzCut = 60.;
+const Float_t mVzCut = 30.;
 const Float_t mVzDiffCut = 3.;
 const Int_t   mTrigId[3] ={580001, 580011, 580021}; 
 

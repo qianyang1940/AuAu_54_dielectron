@@ -75,6 +75,7 @@ void doEvent(Int_t nEvents=-1, const Char_t *inputFile="test.list", const TStrin
 	miniTreeMaker->setMaxVtxR(3.);
 	miniTreeMaker->setMaxVtxZ(150.);
 	miniTreeMaker->setMaxVzDiff(10.);
+	miniTreeMaker->setFillTree(1);
 	//miniTreeMaker->setPrintMemory(1);
 	//miniTreeMaker->setPrintCpu(1);
 	miniTreeMaker->setPrintConfig(1);

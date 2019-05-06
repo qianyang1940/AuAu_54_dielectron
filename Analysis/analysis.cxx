@@ -124,6 +124,7 @@ TH1F *hRawRefMult;
 TH1F *hVertexZ;
 TH1F *hVzDiff;
 TH1F *hBField;
+TH3F *hVxVyvsCentrality;
 //eventPlane
 TH1F *hRawEventPlane;
 TH1F *hNewEventPlane;
@@ -351,6 +352,9 @@ Bool_t passEvent(miniDst* event)
 	//if(refMult<300) cout<<"reWeight: "<<reWeight<<endl;
 
 	if(TMath::Abs(vx)<1.e-5 && TMath::Abs(vy)<1.e-5 && TMath::Abs(vz)<1.e-5) return kFALSE;
+
+	hVxVyvsCentrality->Fill(vx,vy,mCentrality);
+	
 	if(vr>=mVrCut) return kFALSE;
 	if(TMath::Abs(vz)>=mVzCut) return kFALSE;//vz should also be in the range listed in the parameters file to do the refMult correction
 	if(TMath::Abs(vzDiff)>=mVzDiffCut) return kFALSE;
@@ -809,6 +813,7 @@ void bookHistograms()
 	hVertexZ = new TH1F("hVertexZ","hVertexZ;TPC VertexZ (cm);Counts",2000,-100,100);
 	hVzDiff = new TH1F("hVzDiff","hVzDiff;Vz_{TPC} - Vz_{VPD} (cm);Counts",200,-10,10);
 	hBField = new TH1F("hBField","hBField;Magnetic Filed (KiloGauss);Counts",400,-10,10);
+	hVxVyvsCentrality = new TH3F("hVxVyvsCentrality","hVxVyvsCentrality;Vx (cm);Vy(cm);Centrality",200,-5,5, 200, -5, 5, 20,0,20);
 
 	const Int_t    nPtBins   = 60;
 	const Double_t ptLow     = 0;
@@ -896,6 +901,7 @@ void writeHistograms(char* outFile)
 	hVertexZ->Write();
 	hVzDiff->Write();
 	hBField->Write();
+	hVxVyvsCentrality->Write();
 
 	//eventPlane
 	hRawEventPlane->Write();
